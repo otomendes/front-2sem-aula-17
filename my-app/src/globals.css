@@ -1,1 +1,22 @@
 @import "tailwindcss";
+
+
+@layer base {
+
+    .container {
+     @apply bg-gray-900 text-white flex flex-col w-full h-screen justify-between;
+
+     & header {
+        @apply bg-gray-700 w-full;
+     }
+     & main {
+        @apply bg-gray-500 w-full;
+     }
+     & footer {
+        @apply bg-gray-800 w-full;
+     }
+     
+    }
+  
+
+}

@@ -1,76 +1,70 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Contador } from "../../components/Contador";
 
 type TipoUsuarioGit = {
     login: string;
     id: number;
-    node_id: string;
     avatar_url: string;
-    gravatar_id: string;
-    url: string;
-    html_url: string;
-    followers_url: string;
-    following_url: string;
-    gists_url: string;
-    starred_url: string;
-    subscriptions_url: string;
-    organizations_url: string;
-    repos_url: string;
-    events_url: string;
-    received_events_url: string;
-    type: string;
-    user_view_type: string;
-    site_admin:boolean;
-}
-
+};
 
 export default function Home() {
+    const [usuarios, setUsuarios] = useState<TipoUsuarioGit[]>([]);
+    const [carregando, setCarregando] = useState(true);
+    const [erro, setErro] = useState("");
 
-    //Modificar o título da página;
-    document.title = "Home";
+    useEffect(() => {
+        document.title = "Home";
+        const controller = new AbortController();
 
-    const [usuarios] = useState<TipoUsuarioGit[]>([]);
+        async function loadingData() {
+            try {
+                const response = await fetch("https://api.github.com/users", {
+                    signal: controller.signal,
+                });
 
-    // Exemplo de busca desativado nesta aula.
-//     useEffect( ()=>{
-//         //Função assíncrona
-//         async function loadingData() {
-//             
-//             try {
-//                 const response = await fetch("https://api.github.com/users");
-//                 
-//                 if(!response.ok){
-//                     throw new Error("A listagem falhou!");
-//                 }
-//                 
-//                 const data:TipoUsuarioGit[] = await response.json();
-//                 
-//                 setUsuarios(data);
-// 
-//             } catch (error) {
-//                 console.error(error);
-//             }
-//         }
-// 
-//         //Executando a função
-//         // loadingData();
-// 
-//     }, []);
+                if (!response.ok) {
+                    throw new Error("Não foi possível carregar os usuários. Tente novamente mais tarde.");
+                }
 
+                const data: TipoUsuarioGit[] = await response.json();
+                if (!controller.signal.aborted) {
+                    setUsuarios(data);
+                }
+            } catch (error) {
+                if (!controller.signal.aborted) {
+                    setErro(error instanceof Error ? error.message : "A listagem falhou.");
+                }
+            } finally {
+                if (!controller.signal.aborted) {
+                    setCarregando(false);
+                }
+            }
+        }
+
+        void loadingData();
+        return () => controller.abort();
+    }, []);
 
     return (
         <main>
             <h2>Home</h2>
-            <div>
+            <section aria-labelledby="usuarios-titulo">
+                <h3 id="usuarios-titulo">Usuários do GitHub</h3>
+                {carregando && <p role="status">Carregando usuários...</p>}
+                {erro && <p role="alert">{erro}</p>}
+                {!carregando && !erro && usuarios.length === 0 && (
+                    <p>Nenhum usuário encontrado.</p>
+                )}
                 <ul>
-                    {usuarios.map( (u,i)=> (
-                        <li key={i}>{u.id} - {u.login} - <img src={u.avatar_url} alt={u.login} width={40}/></li>
+                    {usuarios.map((usuario) => (
+                        <li key={usuario.id}>
+                            <img src={usuario.avatar_url} alt="" width={40} height={40} />
+                            <span>{usuario.id} - {usuario.login}</span>
+                        </li>
                     ))}
                 </ul>
-            </div>
-
-                    <Contador/>
-
+            </section>
+            <Contador />
         </main>
-    )
+    );
 }
