@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Contador } from "../../components/Contador";
 
 type TipoUsuarioGit = {
@@ -29,32 +29,34 @@ export default function Home() {
     //Modificar o título da página;
     document.title = "Home";
 
-    const [usuarios, setUsuarios] = useState<TipoUsuarioGit[]>([]);
+    const [usuarios] = useState<TipoUsuarioGit[]>([]);
 
-    useEffect( ()=>{
-        //Função assíncrona
-        async function loadingData() {
-            
-            try {
-                const response = await fetch("https://api.github.com/users");
-                
-                if(!response.ok){
-                    throw new Error("A listagem falhou!");
-                }
-                
-                const data:TipoUsuarioGit[] = await response.json();
-                
-                setUsuarios(data);
+    // Exemplo de busca desativado nesta aula.
+//     useEffect( ()=>{
+//         //Função assíncrona
+//         async function loadingData() {
+//             
+//             try {
+//                 const response = await fetch("https://api.github.com/users");
+//                 
+//                 if(!response.ok){
+//                     throw new Error("A listagem falhou!");
+//                 }
+//                 
+//                 const data:TipoUsuarioGit[] = await response.json();
+//                 
+//                 setUsuarios(data);
+// 
+//             } catch (error) {
+//                 console.error(error);
+//             }
+//         }
+// 
+//         //Executando a função
+//         // loadingData();
+// 
+//     }, []);
 
-            } catch (error) {
-                console.error(error);
-            }
-        }
-
-        //Executando a função
-        // loadingData();
-
-    }, []);
 
     return (
         <main>
